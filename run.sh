@@ -3,7 +3,7 @@
 # 检查当前目录下是否有bin目录和QQS程序
 if [ -d "bin" ] && [ -f "bin/QQS" ]; then
     echo "检测到已存在bin目录和QQS程序，跳过安装过程，直接运行。"
-    python ./bin/tqqs_toolbox.py
+    python tqqs_toolbox.py
     exit 0
 fi
 
@@ -176,7 +176,6 @@ process_zip_file() {
     # 解压文件到bin目录
     echo "正在解压文件到bin目录..."
     unzip -q "$zip_file" -d bin/
-    mv tqqs_toolbox.py ./bin/
     
     # 检查解压结果
     if [ $? -ne 0 ]; then
@@ -262,4 +261,4 @@ download_and_extract
 cd bin
 chmod +x QQS
 ./QQS
-python tqqs_toolbox.py
+python ../tqqs_toolbox.py
