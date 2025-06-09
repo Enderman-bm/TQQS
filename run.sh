@@ -125,5 +125,60 @@ check_python() {
 check_ffmpeg
 check_python
 
-echo "所有依赖检查完成，进入主程序......"
-python main.py
+echo "所有依赖检查完成，开始下载主程序......"
+
+#!/bin/bash
+
+# 用户可自定义的两个下载源（请在此处填入实际的网站域名）
+SOURCE1="http://ecs-121-36-241-42.compute.hwclouds-dns.com"
+SOURCE2="https://file.uhsea.com"
+
+# 要下载的文件路径（请在此处填入实际的文件路径）
+FILE_PATH1="/d/%E8%93%9D%E5%A5%8F%E4%BA%91-%E8%B5%84%E6%BA%90%E7%AB%99%E4%B8%BB%E5%8A%9B%E5%86%9B/QQS.zip?sign=aNltwhppPRowB3qWZuwIno9DotyTUTY17sxwVArCgXc=:0"
+FILE_PATH2="/2506/5e5eb8e3e13920438986b1dbbde4812b91.zip"
+
+# 获取延迟时间（单位：毫秒）
+get_latency() {
+    local host
+    # 从URL中提取主机名
+    host=$(echo "$1" | awk -F/ '{print $3}')
+    
+    # 执行ping测试并提取延迟
+    ping -c 1 "$host" | awk -F'=' '/time=/ {print $NF}' | awk '{print $1}' 2>/dev/null
+}
+
+# 获取两个源的延迟
+LATENCY1=$(get_latency "$SOURCE1")
+LATENCY2=$(get_latency "$SOURCE2")
+
+# 检查是否获取到有效延迟
+if [ -z "$LATENCY1" ]; then
+    LATENCY1=9999
+fi
+
+if [ -z "$LATENCY2" ]; then
+    LATENCY2=9999
+fi
+
+# 比较延迟并选择最佳源
+if [ "$LATENCY1" -lt "$LATENCY2" ]; then
+    SELECTED_SOURCE="$SOURCE1"
+    SELECTED_PATH="$FILE_PATH1"
+    echo "选择源1 (延迟: ${LATENCY1}ms < 源2: ${LATENCY2}ms)"
+else
+    SELECTED_SOURCE="$SOURCE2"
+    SELECTED_PATH="$FILE_PATH2"
+    echo "选择源2 (延迟: ${LATENCY2}ms < 源1: ${LATENCY1}ms)"
+fi
+
+# 执行下载
+DOWNLOAD_URL="${SELECTED_SOURCE}${SELECTED_PATH}"
+echo "开始下载: $DOWNLOAD_URL"
+curl -O "$DOWNLOAD_URL"
+
+# 检查下载结果
+if [ $? -eq 0 ]; then
+    echo "下载成功完成"
+else
+    echo "下载失败，请检查网络连接或URL"
+fi
