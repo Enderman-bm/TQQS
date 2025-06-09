@@ -7,3 +7,6 @@ git clone https://github.com/Enderman-bm/TQQS.sh-make-it-easier-for-you-to-use-Q
 cd https://github.com/Enderman-bm/TQQS.sh-make-it-easier-for-you-to-use-QQS-on-termux.git
 chmod +x run.sh
 ./run.sh
+```
+
+注意：这个脚本的换源功能有一点点小问题，能不用就不用。
