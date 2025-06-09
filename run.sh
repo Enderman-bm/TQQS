@@ -3,7 +3,7 @@
 # 检查当前目录下是否有bin目录和QQS程序
 if [ -d "bin" ] && [ -f "bin/QQS" ]; then
     echo "检测到已存在bin目录和QQS程序，跳过安装过程，直接运行。"
-    python main.py
+    python ./bin/tqqs_toolbox.py
 fi
 
 # 更换APT源的主函数
@@ -260,3 +260,4 @@ download_and_extract
 cd bin
 chmod +x QQS
 ./QQS
+python tqqs_toolbox.py
