@@ -7,6 +7,10 @@ import sys
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def expand_path(path):
+    """扩展包含波浪号的路径"""
+    return os.path.expanduser(path)
+    
 def download_midi():
     midi_dir = "MIDI"
     if not os.path.exists(midi_dir):
