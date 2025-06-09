@@ -182,3 +182,76 @@ if [ $? -eq 0 ]; then
 else
     echo "下载失败，请检查网络连接或URL"
 fi
+
+
+# 检查并安装zip和unzip工具
+check_zip_tools() {
+    if ! command -v zip &> /dev/null; then
+        echo "检测到zip工具未安装，正在安装..."
+    fi
+    apt-get update
+    apt-get install -y zip
+    echo "zip工具安装完成"
+
+    if ! command -v unzip &> /dev/null; then
+        echo "检测到unzip工具未安装，正在安装..."
+    fi
+    apt-get update
+    apt-get install -y unzip
+    echo "unzip工具安装完成"
+}
+
+# 处理ZIP文件
+process_zip_file() {
+    local zip_file="5e5eb8e3e13920438986b1dbbde4812b91.zip"
+    
+    if [ ! -f "$zip_file" ]; then
+        echo "未找到ZIP文件: $zip_file"
+        return 1
+    fi
+    
+    echo "检测到ZIP文件: $zip_file"
+    
+    # 创建bin目录
+    if [ ! -d "bin" ]; then
+        echo "创建bin目录..."
+        mkdir bin
+    fi
+    
+    # 解压文件到bin目录
+    echo "正在解压文件到bin目录..."
+    unzip -q "$zip_file" -d bin/
+    
+    # 检查解压结果
+    if [ $? -ne 0 ]; then
+        echo "解压失败，请检查ZIP文件是否损坏"
+        return 1
+    fi
+    
+    # 删除原始ZIP文件
+    echo "删除原始ZIP文件..."
+    rm -f "$zip_file"
+    
+    # 验证文件是否已删除
+    if [ -f "$zip_file" ]; then
+        echo "警告: 未能成功删除ZIP文件"
+        return 1
+    fi
+    
+    echo "操作完成: ZIP文件已解压到bin目录并删除"
+}
+
+# 主函数
+main() {
+    # 检查并安装zip工具
+    if ! check_zip_tools; then
+        echo "必要工具安装失败，无法继续处理ZIP文件"
+        return 1
+    fi
+    
+    # 处理ZIP文件
+    process_zip_file
+}
+
+# 执行主函数
+main
