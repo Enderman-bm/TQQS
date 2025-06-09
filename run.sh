@@ -1,45 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# 检查并安装ffmpeg
-check_ffmpeg() {
-    if ! command -v ffmpeg &> /dev/null; then
-        echo "ffmpeg未安装，正在尝试安装..."
-    fi
+# 检查当前目录下是否有bin目录和QQS程序
+if [ -d "bin" ] && [ -f "bin/QQS" ]; then
+    echo "检测到已存在bin目录和QQS程序，跳过安装过程，直接运行。"
+    python main.py
+fi
 
-# 检查当前源是否为国内源
-check_source() {
-    local current_source
-    current_source=$(grep -oP '(?<=^deb ).*' "$PREFIX/etc/apt/sources.list" | head -1)
-    
-    # 国内源列表
-    local mirrors=(
-        "mirrors.tuna.tsinghua.edu.cn/termux"
-        "mirrors.bfsu.edu.cn/termux"
-        "mirrors.ustc.edu.cn/termux"
-        "mirrors.nju.edu.cn/termux"
-        "mirrors.aliyun.com/termux"
-    )
-    
-    for mirror in "${mirrors[@]}"; do
-        if [[ "$current_source" == *"$mirror"* ]]; then
-            return 0
-        fi
-    done
-    return 1
-}
-
-# 更换APT源
-change_source() {
-    local selected_source="$1"
-    echo "备份原源文件为 sources.list.bak"
-    cp "$PREFIX/etc/apt/sources.list" "$PREFIX/etc/apt/sources.list.bak"
-    
-    echo "deb $selected_source stable main" > "$PREFIX/etc/apt/sources.list"
-    echo "已更换为: $selected_source"
-}
-
-# 主函数
-main() {
+# 更换APT源的主函数
+change_apt_source() {
     # 检查是否为国内源
     if check_source; then
         echo "当前APT源已经是国内源，无需更换"
@@ -88,9 +56,42 @@ main() {
     done
 }
 
-# 执行主函数
-main
+# 检查当前源是否为国内源
+check_source() {
+    local current_source
+    current_source=$(grep -oP '(?<=^deb ).*' "$PREFIX/etc/apt/sources.list" | head -1)
+    
+    # 国内源列表
+    local mirrors=(
+        "mirrors.tuna.tsinghua.edu.cn/termux"
+        "mirrors.bfsu.edu.cn/termux"
+        "mirrors.ustc.edu.cn/termux"
+        "mirrors.nju.edu.cn/termux"
+        "mirrors.aliyun.com/termux"
+    )
+    
+    for mirror in "${mirrors[@]}"; do
+        if [[ "$current_source" == *"$mirror"* ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
 
+# 更换APT源
+change_source() {
+    local selected_source="$1"
+    echo "备份原源文件为 sources.list.bak"
+    cp "$PREFIX/etc/apt/sources.list" "$PREFIX/etc/apt/sources.list.bak"
+    
+    echo "deb $selected_source stable main" > "$PREFIX/etc/apt/sources.list"
+    echo "已更换为: $selected_source"
+}
+
+# 检查并安装ffmpeg
+check_ffmpeg() {
+    if ! command -v ffmpeg &> /dev/null; then
+        echo "ffmpeg未安装，正在尝试安装..."
         apt-get update
         apt-get install -y ffmpeg
         # 再次检查是否安装成功
@@ -100,7 +101,9 @@ main
         else
             echo "ffmpeg安装成功"
         fi
+    else
         echo "ffmpeg已安装"
+    fi
 }
 
 # 检查并安装python
@@ -109,8 +112,6 @@ check_python() {
         echo "Python3未安装，正在尝试安装..."
         apt-get update
         apt-get install -y python
-    fi
-        
         # 再次检查是否安装成功
         if ! command -v python &> /dev/null; then
             echo "Python3安装失败，请手动安装"
@@ -118,24 +119,10 @@ check_python() {
         else
             echo "Python安装成功"
         fi
+    else
         echo "Python已安装"
+    fi
 }
-
-# 执行检查
-check_ffmpeg
-check_python
-
-echo "所有依赖检查完成，开始下载主程序......"
-
-#!/bin/bash
-
-# 用户可自定义的两个下载源（请在此处填入实际的网站域名）
-SOURCE1="http://121.36.241.42"
-SOURCE2="https://file.uhsea.com"
-
-# 要下载的文件路径（请在此处填入实际的文件路径）
-FILE_PATH1=":5255/d/%E8%93%9D%E5%A5%8F%E4%BA%91-%E8%B5%84%E6%BA%90%E7%AB%99%E4%B8%BB%E5%8A%9B%E5%86%9B/QQS.zip?sign=aNltwhppPRowB3qWZuwIno9DotyTUTY17sxwVArCgXc=:0"
-FILE_PATH2="/2506/5e5eb8e3e13920438986b1dbbde4812b91.zip"
 
 # 获取延迟时间（单位：毫秒）
 get_latency() {
@@ -147,58 +134,25 @@ get_latency() {
     ping -c 1 "$host" | awk -F'=' '/time=/ {print $NF}' | awk '{print $1}' 2>/dev/null
 }
 
-# 获取两个源的延迟
-LATENCY1=$(get_latency "$SOURCE1")
-LATENCY2=$(get_latency "$SOURCE2")
-
-# 检查是否获取到有效延迟
-if [ -z "$LATENCY1" ]; then
-    LATENCY1=9999
-fi
-
-if [ -z "$LATENCY2" ]; then
-    LATENCY2=9999
-fi
-
-# 比较延迟并选择最佳源
-if [ "$LATENCY1" -lt "$LATENCY2" ]; then
-    SELECTED_SOURCE="$SOURCE1"
-    SELECTED_PATH="$FILE_PATH1"
-    echo "选择源1 (延迟: ${LATENCY1}ms < 源2: ${LATENCY2}ms)"
-else
-    SELECTED_SOURCE="$SOURCE2"
-    SELECTED_PATH="$FILE_PATH2"
-    echo "选择源2 (延迟: ${LATENCY2}ms < 源1: ${LATENCY1}ms)"
-fi
-
-# 执行下载
-DOWNLOAD_URL="${SELECTED_SOURCE}${SELECTED_PATH}"
-echo "开始下载: $DOWNLOAD_URL"
-curl -O "$DOWNLOAD_URL"
-
-# 检查下载结果
-if [ $? -eq 0 ]; then
-    echo "下载成功完成"
-else
-    echo "下载失败，请检查网络连接或URL"
-fi
-
-
 # 检查并安装zip和unzip工具
 check_zip_tools() {
     if ! command -v zip &> /dev/null; then
         echo "检测到zip工具未安装，正在安装..."
+        apt-get update
+        apt-get install -y zip
+        echo "zip工具安装完成"
+    else
+        echo "zip工具已安装"
     fi
-    apt-get update
-    apt-get install -y zip
-    echo "zip工具安装完成"
 
     if ! command -v unzip &> /dev/null; then
         echo "检测到unzip工具未安装，正在安装..."
+        apt-get update
+        apt-get install -y unzip
+        echo "unzip工具安装完成"
+    else
+        echo "unzip工具已安装"
     fi
-    apt-get update
-    apt-get install -y unzip
-    echo "unzip工具安装完成"
 }
 
 # 处理ZIP文件
@@ -241,24 +195,68 @@ process_zip_file() {
     echo "操作完成: ZIP文件已解压到bin目录并删除"
 }
 
-# 主函数
-main() {
-    # 检查并安装zip工具
-    if ! check_zip_tools; then
-        echo "必要工具安装失败，无法继续处理ZIP文件"
-        return 1
+# 下载和解压主程序
+download_and_extract() {
+    # 用户可自定义的两个下载源
+    SOURCE1="http://121.36.241.42"
+    SOURCE2="https://file.uhsea.com"
+
+    # 要下载的文件路径
+    FILE_PATH1=":5255/d/%E8%93%9D%E5%A5%8F%E4%BA%91-%E8%B5%84%E6%BA%90%E7%AB%99%E4%B8%BB%E5%8A%9B%E5%86%9B/QQS.zip?sign=aNltwhppPRowB3qWZuwIno9DotyTUTY17sxwVArCgXc=:0"
+    FILE_PATH2="/2506/5e5eb8e3e13920438986b1dbbde4812b91.zip"
+
+    # 获取两个源的延迟
+    LATENCY1=$(get_latency "$SOURCE1")
+    LATENCY2=$(get_latency "$SOURCE2")
+
+    # 检查是否获取到有效延迟
+    if [ -z "$LATENCY1" ]; then
+        LATENCY1=9999
     fi
-    
+
+    if [ -z "$LATENCY2" ]; then
+        LATENCY2=9999
+    fi
+
+    # 比较延迟并选择最佳源
+    if [ "$LATENCY1" -lt "$LATENCY2" ]; then
+        SELECTED_SOURCE="$SOURCE1"
+        SELECTED_PATH="$FILE_PATH1"
+        echo "选择源1 (延迟: ${LATENCY1}ms < 源2: ${LATENCY2}ms)"
+    else
+        SELECTED_SOURCE="$SOURCE2"
+        SELECTED_PATH="$FILE_PATH2"
+        echo "选择源2 (延迟: ${LATENCY2}ms < 源1: ${LATENCY1}ms)"
+    fi
+
+    # 执行下载
+    DOWNLOAD_URL="${SELECTED_SOURCE}${SELECTED_PATH}"
+    echo "开始下载: $DOWNLOAD_URL"
+    curl -o "5e5eb8e3e13920438986b1dbbde4812b91.zip" "$DOWNLOAD_URL"
+
+    # 检查下载结果
+    if [ $? -eq 0 ]; then
+        echo "下载成功完成"
+    else
+        echo "下载失败，请检查网络连接或URL"
+        exit 1
+    fi
+
+    # 检查并安装zip工具
+    check_zip_tools
+
     # 处理ZIP文件
     process_zip_file
 }
 
-# 执行主函数
-main
+# 主安装流程
+echo "开始安装过程..."
+change_apt_source
+check_ffmpeg
+check_python
+download_and_extract
 
-#赋予运行权限
+# 赋予运行权限并启动
 cd bin
 chmod +x QQS
-
-#测试运行
 ./QQS
