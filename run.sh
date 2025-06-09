@@ -5,6 +5,7 @@ check_ffmpeg() {
     if ! command -v ffmpeg &> /dev/null; then
         echo "ffmpeg未安装，正在尝试安装..."
     fi
+
 # 检查当前源是否为国内源
 check_source() {
     local current_source
@@ -86,7 +87,10 @@ main() {
         esac
     done
 }
-        
+
+# 执行主函数
+main
+
         apt-get update
         apt-get install -y ffmpeg
         # 再次检查是否安装成功
