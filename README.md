@@ -1,0 +1,1 @@
+# TQQS.sh-make-it-easier-for-you-to-use-QQS-on-termux
