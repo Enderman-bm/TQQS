@@ -249,7 +249,7 @@ def render_midi():
     video_path = os.path.join(video_dir, video_name)
     
     cmd = [
-        './QQS',
+        './bin/QQS',
         f'-mid={midi_path}',
         f'-vid={video_path}',
         f'-wei={width}',
