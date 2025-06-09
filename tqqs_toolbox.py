@@ -248,8 +248,18 @@ def render_midi():
     video_name = os.path.basename(midi_path).replace('.mid', '.mp4')
     video_path = os.path.join(video_dir, video_name)
     
+    # 修复路径问题：使用expanduser扩展波浪号路径
+    qqs_path = expand_path("./bin/QQS")
+    
+    # 检查文件是否存在
+    if not os.path.exists(qqs_path):
+        print(f"错误：未找到QQS程序，请确保路径存在: {qqs_path}")
+        print("请检查QQS是否在 ./bin/ 目录下")
+        time.sleep(3)
+        return
+
     cmd = [
-        '~/TQQS/bin/QQS',
+        qqs_path,
         f'-mid={midi_path}',
         f'-vid={video_path}',
         f'-wei={width}',
