@@ -126,3 +126,4 @@ check_ffmpeg
 check_python
 
 echo "所有依赖检查完成，进入主程序......"
+python main.py
