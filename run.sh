@@ -29,11 +29,11 @@ change_apt_source() {
     
     # 对应的URL
     local urls=(
-        "https://mirrors.tuna.tsinghua.edu.cn/termux"
-        "https://mirrors.bfsu.edu.cn/termux"
-        "https://mirrors.ustc.edu.cn/termux"
-        "https://mirrors.nju.edu.cn/termux"
-        "https://mirrors.aliyun.com/termux"
+        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt"
+        "https://mirrors.bfsu.edu.cn/termux/apt"
+        "https://mirrors.ustc.edu.cn/termux/apt"
+        "https://mirrors.nju.edu.cn/termux/apt"
+        "https://mirrors.aliyun.com/termux/apt"
     )
     
     # 显示菜单
