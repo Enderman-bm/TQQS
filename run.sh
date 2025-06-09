@@ -255,3 +255,10 @@ main() {
 
 # 执行主函数
 main
+
+#赋予运行权限
+cd bin
+chmod +x QQS
+
+#测试运行
+./QQS
