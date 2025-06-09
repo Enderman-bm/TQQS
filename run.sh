@@ -4,6 +4,7 @@
 if [ -d "bin" ] && [ -f "bin/QQS" ]; then
     echo "检测到已存在bin目录和QQS程序，跳过安装过程，直接运行。"
     python ./bin/tqqs_toolbox.py
+    exit 0
 fi
 
 # 更换APT源的主函数
