@@ -96,9 +96,7 @@ main() {
         else
             echo "ffmpeg安装成功"
         fi
-    else
         echo "ffmpeg已安装"
-    fi
 }
 
 # 检查并安装python
@@ -116,9 +114,7 @@ check_python() {
         else
             echo "Python安装成功"
         fi
-    else
         echo "Python已安装"
-    fi
 }
 
 # 执行检查
