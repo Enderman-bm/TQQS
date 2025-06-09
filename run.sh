@@ -176,7 +176,7 @@ process_zip_file() {
     # 解压文件到bin目录
     echo "正在解压文件到bin目录..."
     unzip -q "$zip_file" -d bin/
-    curl https://file.uhsea.com/2506/18e912f64d8444475fafacf0a57bace2B6.py -o tqqs_toolbox.py
+    mv tqqs_toolbox.py ./bin/
     
     # 检查解压结果
     if [ $? -ne 0 ]; then
