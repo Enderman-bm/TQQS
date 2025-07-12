@@ -258,6 +258,10 @@ check_ffmpeg
 check_python
 download_and_extract
 
+# 链接主程序
+chmod +x run.sh
+cp run.sh run
+ln -l run $PREFIX/bin
 # 赋予运行权限并启动
 cd bin
 chmod +x QQS
