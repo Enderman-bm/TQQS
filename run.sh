@@ -29,11 +29,11 @@ change_apt_source() {
     
     # 对应的URL
     local urls=(
-        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt"
-        "https://mirrors.bfsu.edu.cn/termux/apt"
-        "https://mirrors.ustc.edu.cn/termux/apt"
-        "https://mirrors.nju.edu.cn/termux/apt"
-        "https://mirrors.aliyun.com/termux/apt"
+        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.bfsu.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.ustc.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.nju.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.aliyun.com/termux/apt/termux-main/"
     )
     
     # 显示菜单
@@ -65,11 +65,11 @@ check_source() {
     
     # 国内源列表
     local mirrors=(
-        "mirrors.tuna.tsinghua.edu.cn/termux/apt"
-        "mirrors.bfsu.edu.cn/termux/apt"
-        "mirrors.ustc.edu.cn/termux/apt"
-        "mirrors.nju.edu.cn/termux/apt"
-        "mirrors.aliyun.com/termux/apt"
+        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main//termux-main/"
+        "mirrors.bfsu.edu.cn/termux/apt/termux-main/"
+        "mirrors.ustc.edu.cn/termux/apt/termux-main/"
+        "mirrors.nju.edu.cn/termux/apt/termux-main/"
+        "mirrors.aliyun.com/termux/apt/termux-main/"
     )
     
     for mirror in "${mirrors[@]}"; do
