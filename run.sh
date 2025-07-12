@@ -65,11 +65,11 @@ check_source() {
     
     # 国内源列表
     local mirrors=(
-        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main//termux-main/"
-        "mirrors.bfsu.edu.cn/termux/apt/termux-main/"
-        "mirrors.ustc.edu.cn/termux/apt/termux-main/"
-        "mirrors.nju.edu.cn/termux/apt/termux-main/"
-        "mirrors.aliyun.com/termux/apt/termux-main/"
+        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/termux-main/"
+        "https://mirrors.bfsu.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.ustc.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.nju.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.aliyun.com/termux/apt/termux-main/"
     )
     
     for mirror in "${mirrors[@]}"; do
@@ -234,7 +234,7 @@ download_and_extract() {
     # 执行下载
     DOWNLOAD_URL="${SELECTED_SOURCE}${SELECTED_PATH}"
     echo "开始下载: $DOWNLOAD_URL"
-    curl -o "5e5eb8e3e13920438986b1dbbde4812b91.zip" "$DOWNLOAD_URL"
+    curl "$DOWNLOAD_URL" -o "5e5eb8e3e13920438986b1dbbde4812b91.zip"
 
     # 检查下载结果
     if [ $? -eq 0 ]; then
