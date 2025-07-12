@@ -67,7 +67,7 @@ def download_midi():
             return
 
 def list_midi_files():
-    midi_dir = "MIDI"
+    midi_dir = "input_MIDI"
     if not os.path.exists(midi_dir) or not os.listdir(midi_dir):
         print("MIDI文件夹为空，请先下载MIDI文件")
         time.sleep(2)
