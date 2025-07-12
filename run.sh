@@ -43,7 +43,8 @@ change_apt_source() {
             [1-5])
                 echo "正在更换为: ${sources[$((REPLY-1))]}"
                 change_source "${urls[$((REPLY-1))]}"
-                echo "更换完成，建议稍后运行 pkg update 更新索引"
+                echo "更换完成，开始更新索引。"
+                apt update -y && apt upgrade -y
                 break
                 ;;
             6)
