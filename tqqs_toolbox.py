@@ -12,7 +12,7 @@ def expand_path(path):
     return os.path.expanduser(path)
     
 def download_midi():
-    midi_dir = "MIDI"
+    midi_dir = "input_MIDI"
     if not os.path.exists(midi_dir):
         os.makedirs(midi_dir)
     
@@ -27,8 +27,8 @@ def download_midi():
         choice = input("请选择: ").strip()
         
         if choice == '1':
-            url = "https://file.uhsea.com/2506/103a1f1f2f91d6c442555876d89996c0WQ.mid"
-            filename = "red zone.mid"
+            url = "https://file.uhsea.com/2507/60bdcc6676d4ba0d09fc335d5468dca2EP.mid"
+            filename = "demo_shanghai_teahouse.mid"
             save_path = os.path.join(midi_dir, filename)
             
             try:
@@ -173,7 +173,7 @@ def get_fps():
 def get_ppb():
     while True:
         clear_screen()
-        print("---<<选择音符长度>>---")
+        print("---<<选择音符长度(数值越小越慢)>>---")
         print("1，520 ppb")
         print("2，480 ppb")
         print("3，440 ppb")
@@ -206,7 +206,7 @@ def get_ppb():
 def get_keyh():
     while True:
         clear_screen()
-        print("---<<选择键盘高度>>---")
+        print("---<<选择键盘高度(推荐：140)>>---")
         print("1，180")
         print("2，160")
         print("3，140")
@@ -246,7 +246,7 @@ def render_midi():
     ppb = get_ppb()
     keyh = get_keyh()
     
-    video_dir = "VIDEO"
+    video_dir = "optput_video"
     if not os.path.exists(video_dir):
         os.makedirs(video_dir)
     
@@ -305,7 +305,7 @@ def about_script():
     clear_screen()
     print("------<<TQQS Termux Toolbox v1.0>>------")
     print("脚本作者：黑乐谱末影君")
-    print("版本：v1.0")
+    print("版本：v1.4")
     input("\n按任意键返回上级界面...")
 
 def main():

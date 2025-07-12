@@ -64,11 +64,11 @@ check_source() {
     
     # 国内源列表
     local mirrors=(
-        "mirrors.tuna.tsinghua.edu.cn/termux"
-        "mirrors.bfsu.edu.cn/termux"
-        "mirrors.ustc.edu.cn/termux"
-        "mirrors.nju.edu.cn/termux"
-        "mirrors.aliyun.com/termux"
+        "mirrors.tuna.tsinghua.edu.cn/termux/apt"
+        "mirrors.bfsu.edu.cn/termux/apt"
+        "mirrors.ustc.edu.cn/termux/apt"
+        "mirrors.nju.edu.cn/termux/apt"
+        "mirrors.aliyun.com/termux/apt"
     )
     
     for mirror in "${mirrors[@]}"; do
