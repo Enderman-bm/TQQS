@@ -317,8 +317,8 @@ download_and_extract
 chmod +x run.sh
 cp run.sh run
 
-# 创建链接以便快速启动程序
-ln -l run $PREFIX/bin
+# 创建启动方式以便快速启动程序
+mv ./run $PREFIX/bin/run
 
 # 赋予运行权限并启动
 cd bin
