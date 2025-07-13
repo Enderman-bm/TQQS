@@ -10,7 +10,7 @@ import termios
 # ================== 配置与国际化 ==================
 config_path = os.path.expanduser('~/.tqqs_config')
 
-# 多语言字符串
+# 多语言字符串（新增 language_settings 标题）
 strings = {
     'zh': {
         'main_title': "------<<TQQS Termux Toolbox v1.0>>------",
@@ -59,7 +59,8 @@ strings = {
         'keyh_input': "键盘高度: ",
         'use_arrow': "\n使用↑↓键选择，Enter确认，或输入数字",
         'enter_choice': "\n请输入选项: ",
-        'press_enter': "按Enter键返回..."
+        'press_enter': "按Enter键返回...",
+        'language_settings': "---<<语言设置>>---"  # 新增语言设置标题
     },
     'en': {
         'main_title': "------<<TQQS Termux Toolbox v1.0>>------",
@@ -108,7 +109,8 @@ strings = {
         'keyh_input': "Keyboard height: ",
         'use_arrow': "\nUse ↑↓ to navigate, Enter to confirm",
         'enter_choice': "\nEnter choice: ",
-        'press_enter': "Press Enter to return..."
+        'press_enter': "Press Enter to return...",
+        'language_settings': "---<<Language Settings>>---"  # 新增语言设置标题
     }
 }
 
@@ -170,11 +172,9 @@ def navigate_menu(options, title_key):
         clear_screen()
         draw_box(strings[lang][title_key])
         print(strings[lang]['use_arrow'])
-        
         for i, option in enumerate(options):
             prefix = "  > " if i == current else "    "
             print(f"{prefix}{option}")
-        
         key = get_key()
         if key == 'UP':
             current = (current - 1) % len(options)
@@ -191,47 +191,38 @@ def download_midi():
     midi_dir = "input_MIDI"
     if not os.path.exists(midi_dir):
         os.makedirs(midi_dir)
-    
     options = strings[lang]['download_choices']
     while True:
         choice = navigate_menu(options, 'download_title')
-        
         if choice == 0:  # 默认测试MIDI
             url = "https://file.uhsea.com/2507/60bdcc6676d4ba0d09fc335d5468dca2EP.mid "
             filename = "demo_shanghai_teahouse.mid"
             save_path = os.path.join(midi_dir, filename)
-            
             try:
                 urllib.request.urlretrieve(url, save_path)
                 print(strings[lang]['download_success'].format(filename))
             except Exception as e:
                 print(strings[lang]['download_fail'].format(str(e)))
             time.sleep(2)
-        
         elif choice == 1:  # 更多MIDI
             clear_screen()
             draw_box("更多MIDI" if lang == 'zh' else "More MIDI")
             print("功能尚未实现" if lang == 'zh' else "Not implemented yet")
             input(strings[lang]['press_enter'])
-        
         elif choice == 2:  # 自定义下载
             clear_screen()
             draw_box("自定义下载" if lang == 'zh' else "Custom Download")
             url = input(strings[lang]['enter_url']).strip()
             filename = input(strings[lang]['enter_filename']).strip()
-            
             if not filename.endswith('.mid'):
                 filename += '.mid'
-            
             save_path = os.path.join(midi_dir, filename)
-            
             try:
                 urllib.request.urlretrieve(url, save_path)
                 print(strings[lang]['download_success'].format(filename))
             except Exception as e:
                 print(strings[lang]['download_fail'].format(str(e)))
             time.sleep(2)
-        
         elif choice == 3:  # 返回
             return
 
@@ -242,7 +233,6 @@ def list_midi_files():
         print(strings[lang]['no_midi'])
         time.sleep(2)
         return None
-    
     files = [f for f in os.listdir(midi_dir) if f.endswith('.mid')]
     return files
 
@@ -250,13 +240,11 @@ def select_midi():
     files = list_midi_files()
     if not files:
         return None
-    
     options = files + [strings[lang]['back']]
     while True:
         clear_screen()
         draw_box(strings[lang]['select_midi'])
         choice = navigate_menu(options, 'select_midi')
-        
         if choice == len(files):  # 返回
             return None
         elif 0 <= choice < len(files):
@@ -266,7 +254,6 @@ def select_midi():
 def get_resolution():
     options = strings[lang]['resolution_options']
     choice = navigate_menu(options, 'render_resolution')
-    
     if choice == 0: return 3840, 2160
     elif choice == 1: return 2560, 1440
     elif choice == 2: return 1920, 1080
@@ -286,7 +273,6 @@ def get_resolution():
 def get_fps():
     options = strings[lang]['fps_options']
     choice = navigate_menu(options, 'render_fps')
-    
     if choice == 0: return 60
     elif choice == 1: return 45
     elif choice == 2: return 30
@@ -304,7 +290,6 @@ def get_fps():
 def get_ppb():
     options = strings[lang]['ppb_options']
     choice = navigate_menu(options, 'render_ppb')
-    
     if choice == 0: return 520
     elif choice == 1: return 480
     elif choice == 2: return 440
@@ -322,7 +307,6 @@ def get_ppb():
 def get_keyh():
     options = strings[lang]['keyh_options']
     choice = navigate_menu(options, 'render_keyh')
-    
     if choice == 0: return 180
     elif choice == 1: return 160
     elif choice == 2: return 140
@@ -342,27 +326,21 @@ def render_midi():
     midi_path = select_midi()
     if not midi_path:
         return
-    
     width, height = get_resolution()
     fps = get_fps()
     ppb = get_ppb()
     keyh = get_keyh()
-    
     video_dir = "output_video"
     if not os.path.exists(video_dir):
         os.makedirs(video_dir)
-    
     video_name = os.path.basename(midi_path).replace('.mid', '.mp4')
     video_path = os.path.join(video_dir, video_name)
-  
     qqs_path = expand_path("~/TQQS/bin/QQS")
-    
     if not os.path.exists(qqs_path):
         print(f"错误：未找到QQS程序，请确保路径存在: {qqs_path}")
         print("请检查TQQS是否安装在 ~/TQQS/bin/ 目录下")
         time.sleep(3)
         return
-
     cmd = [
         qqs_path,
         f'-mid={midi_path}',
@@ -373,10 +351,8 @@ def render_midi():
         f'-ppb={ppb}',
         f'-keyh={keyh}'
     ]
-    
     print(strings[lang]['render_start'])
     print("渲染命令: " + " ".join(cmd))
-    
     try:
         process = subprocess.Popen(
             cmd,
@@ -385,10 +361,8 @@ def render_midi():
             text=True,
             bufsize=1
         )
-        
         for line in process.stdout:
             print(line, end='')
-        
         process.wait()
         if process.returncode == 0:
             print(strings[lang]['render_success'])
@@ -396,7 +370,6 @@ def render_midi():
             print(strings[lang]['render_fail'].format(process.returncode))
     except Exception as e:
         print(f"执行错误: {str(e)}")
-    
     print(strings[lang]['render_path'].format(video_path))
     print("5秒后返回主菜单..." if lang == 'zh' else "Return to main menu in 5 seconds...")
     time.sleep(5)
@@ -410,7 +383,8 @@ def about_script():
 def switch_language():
     global lang
     options = ["中文", "English"]
-    choice = navigate_menu(options, "语言设置" if lang == 'zh' else "Language Settings")
+    # 使用新增的语言设置标题键
+    choice = navigate_menu(options, 'language_settings')
     lang = 'zh' if choice == 0 else 'en'
     save_config()
     print(strings[lang]['lang_switch'])
@@ -422,15 +396,12 @@ def main():
         clear_screen()
         draw_box(strings[lang]['main_title'])
         main_choices = strings[lang]['main_choices']
-        
-        # 添加语言切换选项
+        # 动态更新语言选项显示
         if lang == 'zh':
             main_choices[3] = "语言设置"
         else:
             main_choices[3] = "Language"
-        
         choice = navigate_menu(main_choices, 'main_title')
-        
         if choice == 0:
             download_midi()
         elif choice == 1:
@@ -438,10 +409,7 @@ def main():
         elif choice == 2:
             about_script()
         elif choice == 3:
-            if lang == 'zh':
-                switch_language()
-            else:
-                switch_language()
+            switch_language()
         elif choice == 4 or (choice is None and input(strings[lang]['confirm_exit']).lower() == 'y'):
             print(strings[lang]['exit'])
             break
