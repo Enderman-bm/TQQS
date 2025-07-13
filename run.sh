@@ -1,5 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
+echo "注意：本脚本是为TERMUX定制的自动化脚本，在其它系统上安装termios库时会出错，故不要使用。"
+sleep 5
+
 # 检查当前目录下是否有bin目录和QQS程序
 if [ -d "bin" ] && [ -f "bin/QQS" ]; then
     echo "检测到已存在bin目录和QQS程序，跳过安装过程，直接运行。"
@@ -119,7 +122,10 @@ check_python() {
             echo "Python3安装失败，请手动安装"
             exit 1
         else
-            echo "Python安装成功"
+            echo "Python安装成功，开始安装程序依赖"
+            apt install python3-pip -y
+            pip config set global.index-url https://mirrors.aliyun.com/pypi/simple
+            pip install termios
         fi
     else
         echo "Python已安装"
@@ -261,7 +267,10 @@ download_and_extract
 # 链接主程序
 chmod +x run.sh
 cp run.sh run
+
+# 创建链接以便快速启动程序
 ln -l run $PREFIX/bin
+
 # 赋予运行权限并启动
 cd bin
 chmod +x QQS
