@@ -10,7 +10,6 @@ if [ -d "bin" ] && [ -f "bin/QQS" ]; then
     exit 0
 else if [ -d "bin" ]; then
     echo "文件补全中，请稍后。。。。。。"
-    download_and_extract() {
     # 用户可自定义的两个下载源
     SOURCE1="http://121.36.241.42"
     SOURCE2="https://file.uhsea.com"
@@ -55,8 +54,6 @@ else if [ -d "bin" ]; then
         echo "下载失败，请检查网络连接(不然就是UP的链接挂了)"
         exit 1
     fi
-    }
-    exit 0
     fi
 fi
 
