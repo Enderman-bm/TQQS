@@ -125,7 +125,6 @@ check_python() {
             echo "Python安装成功，开始安装程序依赖"
             apt install python3-pip -y
             pip config set global.index-url https://mirrors.aliyun.com/pypi/simple
-            pip install termios
         fi
     else
         echo "Python已安装"
