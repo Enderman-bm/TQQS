@@ -8,6 +8,11 @@ if [ -d "bin" ] && [ -f "bin/QQS" ]; then
     echo "检测到已存在bin目录和QQS程序，跳过安装过程，直接运行。"
     python tqqs_toolbox.py
     exit 0
+else if [ -d "bin" ]; then
+    echo "文件补全中，请稍后。。。。。。"
+    download_and_extract
+    exit 0
+    fi
 fi
 
 # 更换APT源的主函数
@@ -68,7 +73,7 @@ check_source() {
     
     # 国内源列表
     local mirrors=(
-        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/termux-main/"
+        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/"
         "https://mirrors.bfsu.edu.cn/termux/apt/termux-main/"
         "https://mirrors.ustc.edu.cn/termux/apt/termux-main/"
         "https://mirrors.nju.edu.cn/termux/apt/termux-main/"
@@ -245,7 +250,7 @@ download_and_extract() {
     if [ $? -eq 0 ]; then
         echo "下载成功完成"
     else
-        echo "下载失败，请检查网络连接或URL"
+        echo "下载失败，请检查网络连接(不然就是UP的链接挂了)"
         exit 1
     fi
 
