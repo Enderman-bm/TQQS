@@ -265,11 +265,11 @@ process_zip_file() {
 # 下载和解压主程序
 download_and_extract() {
     # 用户可自定义的两个下载源
-    SOURCE1="http://121.36.241.42"
+    SOURCE1="https://file.uhsea.com"
     SOURCE2="https://file.uhsea.com"
 
     # 要下载的文件路径
-    FILE_PATH1=":5255/d/%E8%93%9D%E5%A5%8F%E4%BA%91-%E8%B5%84%E6%BA%90%E7%AB%99%E4%B8%BB%E5%8A%9B%E5%86%9B/QQS.zip?sign=aNltwhppPRowB3qWZuwIno9DotyTUTY17sxwVArCgXc=:0"
+    FILE_PATH1="/2506/5e5eb8e3e13920438986b1dbbde4812b91.zip"
     FILE_PATH2="/2506/5e5eb8e3e13920438986b1dbbde4812b91.zip"
 
     # 获取两个源的延迟
