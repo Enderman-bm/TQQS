@@ -70,11 +70,11 @@ change_apt_source() {
 
     # 源选项数组
     local sources=(
-        "清华大学源 - https://mirrors.tuna.tsinghua.edu.cn/termux"
-        "北京外国语大学源 - https://mirrors.bfsu.edu.cn/termux"
-        "中国科学技术大学源 - https://mirrors.ustc.edu.cn/termux"
-        "南京大学源 - https://mirrors.nju.edu.cn/termux"
-        "阿里云源 - https://mirrors.aliyun.com/termux"
+        "清华大学源 - https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/"
+        "北京外国语大学源 - https://mirrors.bfsu.edu.cn/termux/apt/termux-main/"
+        "中国科学技术大学源 - https://mirrors.ustc.edu.cn/termux/apt/termux-main/"
+        "南京大学源 - https://mirrors.nju.edu.cn/termux/apt/termux-main/"
+        "阿里云源 - https://mirrors.aliyun.com/termux/apt/termux-main/"
     )
     
     # 对应的URL
@@ -125,11 +125,11 @@ check_source() {
 
     # 国内源列表（注意：去掉了末尾的空格）
     local mirrors=(
-        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main "
-        "https://mirrors.bfsu.edu.cn/termux/apt/termux-main "
-        "https://mirrors.ustc.edu.cn/termux/apt/termux-main "
-        "https://mirrors.nju.edu.cn/termux/apt/termux-main "
-        "https://mirrors.aliyun.com/termux/apt/termux-main "
+        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main"
+        "https://mirrors.bfsu.edu.cn/termux/apt/termux-main"
+        "https://mirrors.ustc.edu.cn/termux/apt/termux-main"
+        "https://mirrors.nju.edu.cn/termux/apt/termux-main"
+        "https://mirrors.aliyun.com/termux/apt/termux-main"
     )
 
     for mirror in "${mirrors[@]}"; do
