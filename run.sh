@@ -109,24 +109,37 @@ change_apt_source() {
 }
 
 # 检查当前源是否为国内源
+ 检查当前源是否为国内源
 check_source() {
-    local current_source
-    current_source=$(grep -oP '(?<=^deb ).*' "$PREFIX/etc/apt/sources.list" | head -1)
-    
-    # 国内源列表
+    local current_source_line
+    current_source_line=$(grep -oP '^deb\s+\S+' "$PREFIX/etc/apt/sources.list" | head -1)
+
+    if [ -z "$current_source_line" ]; then
+        echo "无法读取APT源配置"
+        return 1
+    fi
+
+    # 只保留URL部分（去掉后面的仓库名称如 stable main）
+    local current_source_url
+    current_source_url=$(echo "$current_source_line" | awk '{print $2}')
+
+    # 国内源列表（注意：去掉了末尾的空格）
     local mirrors=(
-        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/"
-        "https://mirrors.bfsu.edu.cn/termux/apt/termux-main/"
-        "https://mirrors.ustc.edu.cn/termux/apt/termux-main/"
-        "https://mirrors.nju.edu.cn/termux/apt/termux-main/"
-        "https://mirrors.aliyun.com/termux/apt/termux-main/"
+        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main "
+        "https://mirrors.bfsu.edu.cn/termux/apt/termux-main "
+        "https://mirrors.ustc.edu.cn/termux/apt/termux-main "
+        "https://mirrors.nju.edu.cn/termux/apt/termux-main "
+        "https://mirrors.aliyun.com/termux/apt/termux-main "
     )
-    
+
     for mirror in "${mirrors[@]}"; do
-        if [[ "$current_source" == *"$mirror"* ]]; then
+        if [[ "$current_source_url" == "$mirror" ]]; then
+            echo "当前APT源已经是国内源：$mirror"
             return 0
         fi
     done
+
+    echo "当前APT源不是国内源"
     return 1
 }
 

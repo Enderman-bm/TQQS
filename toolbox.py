@@ -10,11 +10,12 @@ import termios
 # ================== 配置与国际化 ==================
 config_path = os.path.expanduser('~/.tqqs_config')
 
-# 多语言字符串（新增 language_settings 标题）
 strings = {
     'zh': {
-        'main_title': "------<<TQQS Termux Toolbox v1.0>>------",
-        'main_choices': ["下载MIDI", "选择MIDI并渲染", "关于脚本", "语言设置", "退出程序"],
+        'main_title': "------<<Termux Black MIDI Toolbox v1.0>>------",
+        'main_choices': ["MIDI工具箱", "其他功能1", "其他功能2", "语言设置", "退出程序"],
+        'sub_title': "------<<TQQS Termux Toolbox v1.0>>------",
+        'sub_choices': ["下载MIDI", "选择MIDI并渲染", "关于脚本", "返回上级界面"],
         'download_title': "---<<下载MIDI>>---",
         'download_choices': ["默认测试MIDI", "更多MIDI", "自定义链接", "返回上级界面"],
         'render_resolution': "---<<选择渲染分辨率>>---",
@@ -60,11 +61,13 @@ strings = {
         'use_arrow': "\n使用↑↓键选择，Enter确认，或输入数字",
         'enter_choice': "\n请输入选项: ",
         'press_enter': "按Enter键返回...",
-        'language_settings': "---<<语言设置>>---"  # 新增语言设置标题
+        'language_settings': "---<<语言设置>>---"
     },
     'en': {
-        'main_title': "------<<TQQS Termux Toolbox v1.0>>------",
-        'main_choices': ["Download MIDI", "Select MIDI & Render", "About Script", "Language", "Exit"],
+        'main_title': "------<<Termux Black MIDI Toolbox v1.0>>------",
+        'main_choices': ["MIDI Toolkit", "Feature 1", "Feature 2", "Language", "Exit"],
+        'sub_title': "------<<TQQS Termux Toolbox v1.0>>------",
+        'sub_choices': ["Download MIDI", "Select MIDI & Render", "About Script", "Back to Main Menu"],
         'download_title': "---<<Download MIDI>>---",
         'download_choices': ["Default Test MIDI", "More MIDI", "Custom URL", "Back to Menu"],
         'render_resolution': "---<<Render Resolution>>---",
@@ -110,7 +113,7 @@ strings = {
         'use_arrow': "\nUse ↑↓ to navigate, Enter to confirm",
         'enter_choice': "\nEnter choice: ",
         'press_enter': "Press Enter to return...",
-        'language_settings': "---<<Language Settings>>---"  # 新增语言设置标题
+        'language_settings': "---<<Language Settings>>---"
     }
 }
 
@@ -165,13 +168,13 @@ def draw_box(text):
         print('│ ' + line.ljust(width) + ' │')
     print('└' + '─' * (width + 2) + '┘')
 
-def navigate_menu(options, title_key):
+def navigate_menu(options, title_key, parent_strings=strings):
     """通用菜单导航系统"""
     current = 0
     while True:
         clear_screen()
-        draw_box(strings[lang][title_key])
-        print(strings[lang]['use_arrow'])
+        draw_box(parent_strings[lang][title_key])
+        print(parent_strings[lang]['use_arrow'])
         for i, option in enumerate(options):
             prefix = "  > " if i == current else "    "
             print(f"{prefix}{option}")
@@ -383,7 +386,6 @@ def about_script():
 def switch_language():
     global lang
     options = ["中文", "English"]
-    # 使用新增的语言设置标题键
     choice = navigate_menu(options, 'language_settings')
     lang = 'zh' if choice == 0 else 'en'
     save_config()
@@ -396,21 +398,37 @@ def main():
         clear_screen()
         draw_box(strings[lang]['main_title'])
         main_choices = strings[lang]['main_choices']
-        # 动态更新语言选项显示
-        if lang == 'zh':
-            main_choices[3] = "语言设置"
-        else:
-            main_choices[3] = "Language"
         choice = navigate_menu(main_choices, 'main_title')
+        
         if choice == 0:
-            download_midi()
+            # 进入子功能：MIDI 工具箱
+            while True:
+                clear_screen()
+                draw_box(strings[lang]['sub_title'])
+                sub_choices = strings[lang]['sub_choices']
+                sub_choice = navigate_menu(sub_choices, 'sub_title')
+                
+                if sub_choice == 0:
+                    download_midi()
+                elif sub_choice == 1:
+                    render_midi()
+                elif sub_choice == 2:
+                    about_script()
+                elif sub_choice == 3:
+                    break  # 返回主菜单
+        
         elif choice == 1:
-            render_midi()
+            print("功能开发中..." if lang == 'zh' else "Feature under development...")
+            time.sleep(2)
+        
         elif choice == 2:
-            about_script()
+            print("功能开发中..." if lang == 'zh' else "Feature under development...")
+            time.sleep(2)
+        
         elif choice == 3:
             switch_language()
-        elif choice == 4 or (choice is None and input(strings[lang]['confirm_exit']).lower() == 'y'):
+        
+        elif choice == 4:
             print(strings[lang]['exit'])
             break
 
