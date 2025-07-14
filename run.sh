@@ -334,4 +334,4 @@ mv ./run $PREFIX/bin/run
 cd bin
 chmod +x QQS
 ./QQS
-python ../tqqs_toolbox.py
+python ../toolbox.py
