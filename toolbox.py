@@ -13,7 +13,7 @@ config_path = os.path.expanduser('~/.tqqs_config')
 strings = {
     'zh': {
         'main_title': "------<<Termux Black MIDI Toolbox v1.4>>------",
-        'main_choices': ["MIDI工具箱", "MIDI转音频", "其他功能", "语言设置", "退出程序"],
+        'main_choices': ["MIDI工具箱", "MIDI转音频", "合并音视频", "语言设置", "退出程序"],
         'sub_title': "------<<TQQS Termux Toolbox v1.4>>------",
         'sub_choices': ["下载MIDI", "选择MIDI并渲染", "关于脚本", "返回上级界面"],
         'download_title': "---<<下载MIDI>>---",
@@ -73,11 +73,25 @@ strings = {
         'convert_fail': "转换失败，错误代码: {}",
         'audio_path': "音频文件已保存至: {}",
         'installing_fluidsynth': "正在安装fluidsynth...",
-        'fluidsynth_not_found': "未找到fluidsynth，正在安装..."
+        'fluidsynth_not_found': "未找到fluidsynth，正在安装...",
+        'merge_title': "---<<合并音视频>>---",
+        'no_video': "视频文件夹为空，请先渲染视频",
+        'no_audio': "音频文件夹为空，请先转换音频",
+        'select_video': "---<<选择视频文件>>---",
+        'select_audio': "---<<选择音频文件>>---",
+        'merging': "合并中...",
+        'merge_success': "合并成功完成！",
+        'merge_fail': "合并失败，错误代码: {}",
+        'merge_path': "视频已保存至: {}",
+        'ffmpeg_not_found': "未找到FFmpeg，正在安装...",
+        'installing_ffmpeg': "正在安装FFmpeg...",
+        'move_final': "是否将final_video中的文件移动到/sdcard？(y/n): ",
+        'move_success': "文件已成功移动到/sdcard",
+        'move_fail': "文件移动失败: {}"
     },
     'en': {
         'main_title': "------<<Termux Black MIDI Toolbox v1.4>>------",
-        'main_choices': ["MIDI Toolkit", "MIDI to Audio", "Other Feature", "Language", "Exit"],
+        'main_choices': ["MIDI Toolkit", "MIDI to Audio", "Merge Audio/Video", "Language", "Exit"],
         'sub_title': "------<<TQQS Termux Toolbox v1.4>>------",
         'sub_choices': ["Download MIDI", "Select MIDI & Render", "About Script", "Back to Main Menu"],
         'download_title': "---<<Download MIDI>>---",
@@ -137,7 +151,21 @@ strings = {
         'convert_fail': "Conversion failed, error code: {}",
         'audio_path': "Audio saved to: {}",
         'installing_fluidsynth': "Installing fluidsynth...",
-        'fluidsynth_not_found': "Fluidsynth not found, installing..."
+        'fluidsynth_not_found': "Fluidsynth not found, installing...",
+        'merge_title': "---<<Merge Audio/Video>>---",
+        'no_video': "Video folder is empty, please render video first",
+        'no_audio': "Audio folder is empty, please convert audio first",
+        'select_video': "---<<Select Video File>>---",
+        'select_audio': "---<<Select Audio File>>---",
+        'merging': "Merging...",
+        'merge_success': "Merge completed successfully!",
+        'merge_fail': "Merge failed, error code: {}",
+        'merge_path': "File saved to: {}",
+        'ffmpeg_not_found': "FFmpeg not found, installing...",
+        'installing_ffmpeg': "Installing FFmpeg...",
+        'move_final': "Move files to /sdcard? (y/n): ",
+        'move_success': "Files successfully moved to /sdcard",
+        'move_fail': "Failed to move files: {}"
     }
 }
 
@@ -539,6 +567,139 @@ def convert_midi_to_audio():
     print(strings[lang]['audio_path'].format(output_path))
     input(strings[lang]['press_enter'])
 
+# ================== 音视频合并功能 ==================
+def check_ffmpeg():
+    """检查FFmpeg是否安装"""
+    return shutil.which('ffmpeg') is not None
+
+def install_ffmpeg():
+    """安装FFmpeg"""
+    clear_screen()
+    draw_box(strings[lang]['installing_ffmpeg'])
+    try:
+        subprocess.run(['pkg', 'install', '-y', 'ffmpeg'], check=True)
+    except subprocess.CalledProcessError:
+        print(strings[lang]['ffmpeg_not_found'])
+        time.sleep(2)
+        return False
+    return True
+
+def list_files(directory, extension):
+    """列出指定目录中的文件"""
+    if not os.path.exists(directory):
+        return []
+    return [f for f in os.listdir(directory) if f.endswith(extension)]
+
+def select_file(directory, extension, title_key):
+    """选择文件"""
+    files = list_files(directory, extension)
+    if not files:
+        print(strings[lang]['no_video' if extension == '.mp4' else 'no_audio'])
+        time.sleep(2)
+        return None
+    
+    options = files + [strings[lang]['back']]
+    while True:
+        clear_screen()
+        draw_box(strings[lang][title_key])
+        choice = navigate_menu(options, title_key)
+        if choice == len(files):  # 返回
+            return None
+        elif 0 <= choice < len(files):
+            return os.path.join(directory, files[choice])
+
+def merge_audio_video():
+    """合并音视频"""
+    if not check_ffmpeg():
+        if not install_ffmpeg():
+            input(strings[lang]['press_enter'])
+            return
+    
+    video_dir = os.path.expanduser("~/TQQS/output_video")
+    audio_dir = os.path.expanduser("~/TQQS/output_audio")
+    final_dir = os.path.expanduser("~/TQQS/final_video")
+    
+    # 检查文件夹是否为空
+    if not list_files(video_dir, '.mp4'):
+        print(strings[lang]['no_video'])
+        time.sleep(2)
+        return
+    if not list_files(audio_dir, '.wav'):
+        print(strings[lang]['no_audio'])
+        time.sleep(2)
+        return
+    
+    # 选择视频文件
+    video_path = select_file(video_dir, '.mp4', 'select_video')
+    if not video_path:
+        return
+    
+    # 选择音频文件
+    audio_path = select_file(audio_dir, '.wav', 'select_audio')
+    if not audio_path:
+        return
+    
+    # 创建final_video目录
+    if not os.path.exists(final_dir):
+        os.makedirs(final_dir)
+    
+    # 构建输出路径
+    video_name = os.path.basename(video_path)
+    output_name = os.path.splitext(video_name)[0] + "_merged.mp4"
+    output_path = os.path.join(final_dir, output_name)
+    
+    # 构建FFmpeg命令
+    cmd = [
+        'ffmpeg',
+        '-i', video_path,
+        '-i', audio_path,
+        '-c:v', 'copy',
+        '-c:a', 'aac',
+        '-strict', 'experimental',
+        '-shortest', output_path
+    ]
+    
+    clear_screen()
+    draw_box(strings[lang]['merge_title'])
+    print(strings[lang]['merging'])
+    print("合并命令: " + " ".join(cmd))
+    
+    try:
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1
+        )
+        for line in process.stdout:
+            print(line, end='')
+        process.wait()
+        if process.returncode == 0:
+            print(strings[lang]['merge_success'])
+        else:
+            print(strings[lang]['merge_fail'].format(process.returncode))
+            return
+    except Exception as e:
+        print(f"执行错误: {str(e)}")
+        return
+    
+    print(strings[lang]['merge_path'].format(output_path))
+    
+    # 询问是否移动到/sdcard
+    response = input(strings[lang]['move_final']).strip().lower()
+    if response == 'y':
+        try:
+            # 移动文件
+            shutil.move(output_path, "/sdcard")
+            print(strings[lang]['move_success'])
+        except Exception as e:
+            print(strings[lang]['move_fail'].format(str(e)))
+    else:
+        print("操作已取消。" if lang == 'zh' else "Operation cancelled.")
+    
+    input(strings[lang]['press_enter'])
+
 # ================== 主程序 ==================
 def main():
     while True:
@@ -565,8 +726,7 @@ def main():
         elif choice == 1:
             convert_midi_to_audio()
         elif choice == 2:
-            print("功能开发中..." if lang == 'zh' else "Feature under development...")
-            time.sleep(2)
+            merge_audio_video()
         elif choice == 3:
             switch_language()
         elif choice == 4:
