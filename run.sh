@@ -58,6 +58,7 @@ else if [ -d "bin" ]; then
     fi
     else
     echo "开始安装。。。。。。"
+    fi
 fi
 
 # 更换APT源的主函数
