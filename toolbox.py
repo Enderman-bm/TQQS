@@ -6,20 +6,20 @@ import sys
 import json
 import tty
 import termios
+import shutil
 
 # ================== 配置与国际化 ==================
 config_path = os.path.expanduser('~/.tqqs_config')
-
 strings = {
     'zh': {
         'main_title': "------<<Termux Black MIDI Toolbox v1.4>>------",
-        'main_choices': ["MIDI工具箱", "其他功能1", "其他功能2", "语言设置", "退出程序"],
+        'main_choices': ["MIDI工具箱", "MIDI转音频", "其他功能", "语言设置", "退出程序"],
         'sub_title': "------<<TQQS Termux Toolbox v1.4>>------",
         'sub_choices': ["下载MIDI", "选择MIDI并渲染", "关于脚本", "返回上级界面"],
         'download_title': "---<<下载MIDI>>---",
         'download_choices': ["默认测试MIDI", "更多MIDI", "自定义链接", "返回上级界面"],
         'render_resolution': "---<<选择渲染分辨率>>---",
-        'render_fps': "---<<选择渲染帧率>>---",
+        'render_fps': "---<<选择帧率>>---",
         'render_ppb': "---<<选择音符长度(数值越小越慢)>>---",
         'render_keyh': "---<<选择键盘高度(推荐：140)>>---",
         'about': "------<<TQQS Termux Toolbox v1.4>>------\n脚本作者：黑乐谱末影君\n版本：v1.4",
@@ -61,11 +61,23 @@ strings = {
         'use_arrow': "\n使用↑↓键选择，Enter确认，或输入数字",
         'enter_choice': "\n请输入选项: ",
         'press_enter': "按Enter键返回...",
-        'language_settings': "---<<语言设置>>---"
+        'language_settings': "---<<语言设置>>---",
+        # 新增字符串
+        'convert_title': "---<<转换MIDI到音频>>---",
+        'select_sf2': "---<<选择音色库>>---",
+        'download_sf2': "正在下载音色库...",
+        'sf2_download_success': "音色库下载成功",
+        'sf2_download_fail': "音色库下载失败",
+        'converting': "转换中...",
+        'convert_success': "转换成功！",
+        'convert_fail': "转换失败，错误代码: {}",
+        'audio_path': "音频文件已保存至: {}",
+        'installing_fluidsynth': "正在安装fluidsynth...",
+        'fluidsynth_not_found': "未找到fluidsynth，正在安装..."
     },
     'en': {
         'main_title': "------<<Termux Black MIDI Toolbox v1.4>>------",
-        'main_choices': ["MIDI Toolkit", "Feature 1", "Feature 2", "Language", "Exit"],
+        'main_choices': ["MIDI Toolkit", "MIDI to Audio", "Other Feature", "Language", "Exit"],
         'sub_title': "------<<TQQS Termux Toolbox v1.4>>------",
         'sub_choices': ["Download MIDI", "Select MIDI & Render", "About Script", "Back to Main Menu"],
         'download_title': "---<<Download MIDI>>---",
@@ -113,7 +125,19 @@ strings = {
         'use_arrow': "\nUse ↑↓ to navigate, Enter to confirm",
         'enter_choice': "\nEnter choice: ",
         'press_enter': "Press Enter to return...",
-        'language_settings': "---<<Language Settings>>---"
+        'language_settings': "---<<Language Settings>>---",
+        # New strings
+        'convert_title': "---<<Convert MIDI to Audio>>---",
+        'select_sf2': "---<<Select SoundFont>>---",
+        'download_sf2': "Downloading SoundFont...",
+        'sf2_download_success': "SoundFont downloaded successfully",
+        'sf2_download_fail': "SoundFont download failed",
+        'converting': "Converting...",
+        'convert_success': "Conversion succeeded!",
+        'convert_fail': "Conversion failed, error code: {}",
+        'audio_path': "Audio saved to: {}",
+        'installing_fluidsynth': "Installing fluidsynth...",
+        'fluidsynth_not_found': "Fluidsynth not found, installing..."
     }
 }
 
@@ -126,22 +150,18 @@ def load_config():
             lang = config.get('lang', 'zh')
     else:
         lang = 'zh'
-
 # 保存语言配置
 def save_config():
     with open(config_path, 'w') as f:
         json.dump({'lang': lang}, f)
-
 # 初始化语言
 load_config()
 
 # ================== 核心功能函数 ==================
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
-
 def expand_path(path):
     return os.path.expanduser(path)
-
 def get_key():
     """获取单个键盘输入，支持方向键"""
     fd = sys.stdin.fileno()
@@ -158,7 +178,6 @@ def get_key():
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
-
 def draw_box(text):
     """绘制带边框的标题"""
     lines = text.split('\n')
@@ -167,7 +186,6 @@ def draw_box(text):
     for line in lines:
         print('│ ' + line.ljust(width) + ' │')
     print('└' + '─' * (width + 2) + '┘')
-
 def navigate_menu(options, title_key, parent_strings=strings):
     """通用菜单导航系统"""
     current = 0
@@ -198,7 +216,7 @@ def download_midi():
     while True:
         choice = navigate_menu(options, 'download_title')
         if choice == 0:  # 默认测试MIDI
-            url = "https://endermanbili.obs.cn-east-3.myhuaweicloud.com/TBMB%E4%B8%8B%E8%BD%BD%E6%BA%90/demo_midi.mid"
+            url = "https://endermanbili.obs.cn-east-3.myhuaweicloud.com/TBMB%E4%B8%8B%E8%BD%BD%E6%BA%90/demo_midi.mid "
             filename = "demo_midi.mid"
             save_path = os.path.join(midi_dir, filename)
             try:
@@ -238,7 +256,6 @@ def list_midi_files():
         return None
     files = [f for f in os.listdir(midi_dir) if f.endswith('.mid')]
     return files
-
 def select_midi():
     files = list_midi_files()
     if not files:
@@ -272,7 +289,6 @@ def get_resolution():
             print(strings[lang]['invalid_number'])
             time.sleep(1)
             return get_resolution()
-
 def get_fps():
     options = strings[lang]['fps_options']
     choice = navigate_menu(options, 'render_fps')
@@ -289,7 +305,6 @@ def get_fps():
             print(strings[lang]['invalid_number'])
             time.sleep(1)
             return get_fps()
-
 def get_ppb():
     options = strings[lang]['ppb_options']
     choice = navigate_menu(options, 'render_ppb')
@@ -306,7 +321,6 @@ def get_ppb():
             print(strings[lang]['invalid_number'])
             time.sleep(1)
             return get_ppb()
-
 def get_keyh():
     options = strings[lang]['keyh_options']
     choice = navigate_menu(options, 'render_keyh')
@@ -377,26 +391,20 @@ def render_midi():
     # 请求用户是否移动文件到外部
     source_dir = os.path.expanduser("~/TQQS/output_video")
     target_dir = "/sdcard/moved_video"
-
     # 如果目标文件夹不存在，则创建
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
         print(f"目标文件夹 {target_dir} 不存在，已创建。")
-
     # 用户确认
     response = input(f"是否将 {source_dir} 中的  mp4 文件移动到 {target_dir}？(y/n): ").strip().lower()
-
     if response == 'y':
         # 执行移动命令
         os.system(f'mv "{source_dir}"/*.mp4 "{target_dir}"')
-    
         # 清空原目录内容
         os.system(f'rm -rf "{source_dir}"/*')
-    
         print("文件已成功移动并清空原目录。")
     else:
         print("操作已取消。")
-
     print("5秒后返回主菜单..." if lang == 'zh' else "Return to main menu in 5 seconds...")
     time.sleep(5)
 
@@ -405,7 +413,6 @@ def about_script():
     clear_screen()
     draw_box(strings[lang]['about'])
     input(strings[lang]['press_enter'])
-
 def switch_language():
     global lang
     options = ["中文", "English"]
@@ -414,6 +421,123 @@ def switch_language():
     save_config()
     print(strings[lang]['lang_switch'])
     time.sleep(1)
+
+# ================== MIDI转音频功能 ==================
+def check_fluidsynth():
+    """检查fluidsynth是否安装"""
+    return shutil.which('fluidsynth') is not None
+
+def install_fluidsynth():
+    """安装fluidsynth"""
+    clear_screen()
+    draw_box(strings[lang]['installing_fluidsynth'])
+    try:
+        subprocess.run(['pkg', 'install', '-y', 'fluidsynth'], check=True)
+    except subprocess.CalledProcessError as e:
+        print(strings[lang]['fluidsynth_not_found'])
+        time.sleep(2)
+        return False
+    return True
+
+def manage_soundfonts():
+    """管理音色库"""
+    sf2_dir = os.path.expanduser("~/TQQS/input_sf2")
+    if not os.path.exists(sf2_dir):
+        os.makedirs(sf2_dir)
+    
+    sf2_files = [f for f in os.listdir(sf2_dir) if f.endswith('.sf2')]
+    
+    if not sf2_files:
+        # 下载默认音色库
+        default_sf2_url = "https://endermanbili.obs.cn-east-3.myhuaweicloud.com/TBMB%E4%B8%8B%E8%BD%BD%E6%BA%90/Yamaha%20C7%20Piano.sf2 "
+        default_sf2_path = os.path.join(sf2_dir, "Yamaha C7 Piano.sf2")
+        clear_screen()
+        draw_box(strings[lang]['download_sf2'])
+        try:
+            urllib.request.urlretrieve(default_sf2_url, default_sf2_path)
+            print(strings[lang]['sf2_download_success'])
+            sf2_files = [os.path.basename(default_sf2_path)]
+        except Exception as e:
+            print(strings[lang]['sf2_download_fail'].format(str(e)))
+            time.sleep(2)
+            return None
+    
+    return sf2_dir, sf2_files
+
+def select_soundfont(sf2_dir, sf2_files):
+    """选择音色库"""
+    options = sf2_files + [strings[lang]['back']]
+    while True:
+        clear_screen()
+        draw_box(strings[lang]['select_sf2'])
+        choice = navigate_menu(options, 'select_sf2')
+        if choice == len(sf2_files):  # 返回
+            return None
+        elif 0 <= choice < len(sf2_files):
+            return os.path.join(sf2_dir, sf2_files[choice])
+
+def convert_midi_to_audio():
+    """转换MIDI到音频"""
+    if not check_fluidsynth():
+        if not install_fluidsynth():
+            input(strings[lang]['press_enter'])
+            return
+    
+    sf2_info = manage_soundfonts()
+    if not sf2_info:
+        input(strings[lang]['press_enter'])
+        return
+    
+    sf2_dir, sf2_files = sf2_info
+    selected_sf2 = select_soundfont(sf2_dir, sf2_files)
+    if not selected_sf2:
+        return
+    
+    midi_path = select_midi()
+    if not midi_path:
+        return
+    
+    output_dir = os.path.expanduser("~/TQQS/output_audio")
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    output_name = os.path.basename(midi_path).replace('.mid', '.wav')
+    output_path = os.path.join(output_dir, output_name)
+    
+    cmd = [
+        'fluidsynth',
+        '-ni', selected_sf2,
+        midi_path,
+        '-F', output_path,
+        '-r', '44100'
+    ]
+    
+    clear_screen()
+    draw_box(strings[lang]['convert_title'])
+    print(strings[lang]['converting'])
+    print("转换命令: " + " ".join(cmd))
+    
+    try:
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1
+        )
+        for line in process.stdout:
+            print(line, end='')
+        process.wait()
+        
+        if process.returncode == 0:
+            print(strings[lang]['convert_success'])
+        else:
+            print(strings[lang]['convert_fail'].format(process.returncode))
+    except Exception as e:
+        print(f"执行错误: {str(e)}")
+    
+    print(strings[lang]['audio_path'].format(output_path))
+    input(strings[lang]['press_enter'])
 
 # ================== 主程序 ==================
 def main():
@@ -430,7 +554,6 @@ def main():
                 draw_box(strings[lang]['sub_title'])
                 sub_choices = strings[lang]['sub_choices']
                 sub_choice = navigate_menu(sub_choices, 'sub_title')
-                
                 if sub_choice == 0:
                     download_midi()
                 elif sub_choice == 1:
@@ -439,18 +562,13 @@ def main():
                     about_script()
                 elif sub_choice == 3:
                     break  # 返回主菜单
-        
         elif choice == 1:
-            print("功能开发中..." if lang == 'zh' else "Feature under development...")
-            time.sleep(2)
-        
+            convert_midi_to_audio()
         elif choice == 2:
             print("功能开发中..." if lang == 'zh' else "Feature under development...")
             time.sleep(2)
-        
         elif choice == 3:
             switch_language()
-        
         elif choice == 4:
             print(strings[lang]['exit'])
             break
