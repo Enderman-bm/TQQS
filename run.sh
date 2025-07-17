@@ -6,16 +6,18 @@ sleep 5
 # 检查当前目录下是否有bin目录和QQS程序
 if [ -d "bin" ] && [ -f "bin/QQS" ]; then
     echo "检测到已存在bin目录和QQS程序，跳过安装过程，直接运行。"
-    python tqqs_toolbox.py
+    python toolbox.py
     exit 0
 else if [ -d "bin" ]; then
     echo "文件补全中，请稍后。。。。。。"
     # 用户可自定义的两个下载源
-    SOURCE1="https://file.uhsea.com"
+    # 小末的存储桶
+    SOURCE1="https://endermanbili.obs.cn-east-3.myhuaweicloud.com"
+    # 屋舍直链存储
     SOURCE2="https://file.uhsea.com"
 
     # 要下载的文件路径
-    FILE_PATH1="/2506/5e5eb8e3e13920438986b1dbbde4812b91.zip"
+    FILE_PATH1="/TBMB%E4%B8%8B%E8%BD%BD%E6%BA%90/5e5eb8e3e13920438986b1dbbde4812b91.zip"
     FILE_PATH2="/2506/5e5eb8e3e13920438986b1dbbde4812b91.zip"
 
     # 获取两个源的延迟
@@ -54,7 +56,8 @@ else if [ -d "bin" ]; then
         echo "下载失败，请检查网络连接(不然就是UP的链接挂了)"
         exit 1
     fi
-    fi
+    else
+    echo "开始安装。。。。。。"
 fi
 
 # 更换APT源的主函数
@@ -123,7 +126,7 @@ check_source() {
     local current_source_url
     current_source_url=$(echo "$current_source_line" | awk '{print $2}')
 
-    # 国内源列表（注意：去掉了末尾的空格）
+    # 国内源列表
     local mirrors=(
         "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main"
         "https://mirrors.bfsu.edu.cn/termux/apt/termux-main"

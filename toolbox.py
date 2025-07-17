@@ -12,9 +12,9 @@ config_path = os.path.expanduser('~/.tqqs_config')
 
 strings = {
     'zh': {
-        'main_title': "------<<Termux Black MIDI Toolbox v1.0>>------",
+        'main_title': "------<<Termux Black MIDI Toolbox v1.4>>------",
         'main_choices': ["MIDI工具箱", "其他功能1", "其他功能2", "语言设置", "退出程序"],
-        'sub_title': "------<<TQQS Termux Toolbox v1.0>>------",
+        'sub_title': "------<<TQQS Termux Toolbox v1.4>>------",
         'sub_choices': ["下载MIDI", "选择MIDI并渲染", "关于脚本", "返回上级界面"],
         'download_title': "---<<下载MIDI>>---",
         'download_choices': ["默认测试MIDI", "更多MIDI", "自定义链接", "返回上级界面"],
@@ -32,17 +32,17 @@ strings = {
         'confirm_exit': "确定退出？(Y/N)",
         'lang_switch': "语言切换成功！",
         'resolution_options': [
-            "3840x2160 (4K)", "2560x1440 (2K)", "1920x1080 (1080p)",
-            "1280x720 (720p)", "自定义分辨率"
+            "1,3840x2160 (4K)", "2,2560x1440 (2K)", "3,1920x1080 (1080p)",
+            "4,1280x720 (720p)", "5,自定义分辨率"
         ],
-        'fps_options': ["60 fps", "45 fps", "30 fps", "15 fps", "自定义帧率"],
+        'fps_options': ["1,60 fps", "2,45 fps", "3,30 fps", "4,15 fps", "5,自定义帧率"],
         'ppb_options': [
-            "520 ppb", "480 ppb", "440 ppb", 
-            "400 ppb", "自定义音符长度"
+            "1,520 ppb", "2,480 ppb", "3,440 ppb", 
+            "4,400 ppb", "5,自定义音符长度"
         ],
         'keyh_options': [
-            "180", "160", "140", 
-            "120", "自定义键盘高度"
+            "1,180", "2,160", "3,140", 
+            "4,120", "5,自定义键盘高度"
         ],
         'download_success': "下载成功: {}",
         'download_fail': "下载失败: {}",
@@ -64,9 +64,9 @@ strings = {
         'language_settings': "---<<语言设置>>---"
     },
     'en': {
-        'main_title': "------<<Termux Black MIDI Toolbox v1.0>>------",
+        'main_title': "------<<Termux Black MIDI Toolbox v1.4>>------",
         'main_choices': ["MIDI Toolkit", "Feature 1", "Feature 2", "Language", "Exit"],
-        'sub_title': "------<<TQQS Termux Toolbox v1.0>>------",
+        'sub_title': "------<<TQQS Termux Toolbox v1.4>>------",
         'sub_choices': ["Download MIDI", "Select MIDI & Render", "About Script", "Back to Main Menu"],
         'download_title': "---<<Download MIDI>>---",
         'download_choices': ["Default Test MIDI", "More MIDI", "Custom URL", "Back to Menu"],
@@ -74,7 +74,7 @@ strings = {
         'render_fps': "---<<Frame Rate>>---",
         'render_ppb': "---<<Note Length (Smaller is slower)>>---",
         'render_keyh': "---<<Keyboard Height (Recommended: 140)>>---",
-        'about': "------<<TQQS Termux Toolbox v1.4>>------\nAuthor: Hei Yuepu\nVersion: v1.4",
+        'about': "------<<TQQS Termux Toolbox v1.4>>------\nAuthor: Enderman-bm\nVersion: v1.4",
         'exit': "Thanks for using, goodbye!",
         'invalid_choice': "Invalid option, please try again",
         'no_midi': "MIDI folder is empty, please download first",
@@ -198,8 +198,8 @@ def download_midi():
     while True:
         choice = navigate_menu(options, 'download_title')
         if choice == 0:  # 默认测试MIDI
-            url = "https://file.uhsea.com/2507/60bdcc6676d4ba0d09fc335d5468dca2EP.mid "
-            filename = "demo_shanghai_teahouse.mid"
+            url = "https://endermanbili.obs.cn-east-3.myhuaweicloud.com/TBMB%E4%B8%8B%E8%BD%BD%E6%BA%90/demo_midi.mid"
+            filename = "demo_midi.mid"
             save_path = os.path.join(midi_dir, filename)
             try:
                 urllib.request.urlretrieve(url, save_path)
@@ -374,6 +374,29 @@ def render_midi():
     except Exception as e:
         print(f"执行错误: {str(e)}")
     print(strings[lang]['render_path'].format(video_path))
+    # 请求用户是否移动文件到外部
+    source_dir = os.path.expanduser("~/TQQS/output_video")
+    target_dir = "/sdcard/moved_video"
+
+    # 如果目标文件夹不存在，则创建
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+        print(f"目标文件夹 {target_dir} 不存在，已创建。")
+
+    # 用户确认
+    response = input(f"是否将 {source_dir} 中的  mp4 文件移动到 {target_dir}？(y/n): ").strip().lower()
+
+    if response == 'y':
+        # 执行移动命令
+        os.system(f'mv "{source_dir}"/*.mp4 "{target_dir}"')
+    
+        # 清空原目录内容
+        os.system(f'rm -rf "{source_dir}"/*')
+    
+        print("文件已成功移动并清空原目录。")
+    else:
+        print("操作已取消。")
+
     print("5秒后返回主菜单..." if lang == 'zh' else "Return to main menu in 5 seconds...")
     time.sleep(5)
 
