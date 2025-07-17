@@ -12,9 +12,9 @@ elif [ -d "bin" ]; then
     echo "文件补全中，请稍后。。。。。。"
     # 用户可自定义的两个下载源
     # 小末的存储桶
-    SOURCE1="https://endermanbili.obs.cn-east-3.myhuaweicloud.com "
+    SOURCE1="https://endermanbili.obs.cn-east-3.myhuaweicloud.com"
     # 屋舍直链存储
-    SOURCE2="https://file.uhsea.com "
+    SOURCE2="https://file.uhsea.com"
 
     # 要下载的文件路径
     FILE_PATH1="/TBMB%E4%B8%8B%E8%BD%BD%E6%BA%90/5e5eb8e3e13920438986b1dbbde4812b91.zip"
@@ -73,20 +73,20 @@ change_apt_source() {
 
     # 源选项数组
     local sources=(
-        "清华大学源 - https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/ "
-        "北京外国语大学源 - https://mirrors.bfsu.edu.cn/termux/apt/termux-main/ "
-        "中国科学技术大学源 - https://mirrors.ustc.edu.cn/termux/apt/termux-main/ "
-        "南京大学源 - https://mirrors.nju.edu.cn/termux/apt/termux-main/ "
-        "阿里云源 - https://mirrors.aliyun.com/termux/apt/termux-main/ "
+        "清华大学源 - https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/"
+        "北京外国语大学源 - https://mirrors.bfsu.edu.cn/termux/apt/termux-main/"
+        "中国科学技术大学源 - https://mirrors.ustc.edu.cn/termux/apt/termux-main/"
+        "南京大学源 - https://mirrors.nju.edu.cn/termux/apt/termux-main/"
+        "阿里云源 - https://mirrors.aliyun.com/termux/apt/termux-main/"
     )
     
     # 对应的URL
     local urls=(
-        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/ "
-        "https://mirrors.bfsu.edu.cn/termux/apt/termux-main/ "
-        "https://mirrors.ustc.edu.cn/termux/apt/termux-main/ "
-        "https://mirrors.nju.edu.cn/termux/apt/termux-main/ "
-        "https://mirrors.aliyun.com/termux/apt/termux-main/ "
+        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.bfsu.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.ustc.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.nju.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.aliyun.com/termux/apt/termux-main/"
     )
     
     # 显示菜单
@@ -127,11 +127,11 @@ check_source() {
 
     # 国内源列表
     local mirrors=(
-        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/ "
-        "https://mirrors.bfsu.edu.cn/termux/apt/termux-main/ "
-        "https://mirrors.ustc.edu.cn/termux/apt/termux-main/ "
-        "https://mirrors.nju.edu.cn/termux/apt/termux-main/ "
-        "https://mirrors.aliyun.com/termux/apt/termux-main/ "
+        "https://mirrors.tuna.tsinghua.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.bfsu.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.ustc.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.nju.edu.cn/termux/apt/termux-main/"
+        "https://mirrors.aliyun.com/termux/apt/termux-main/"
     )
 
     for mirror in "${mirrors[@]}"; do
@@ -267,8 +267,8 @@ process_zip_file() {
 # 下载和解压主程序
 download_and_extract() {
     # 用户可自定义的两个下载源
-    SOURCE1="https://endermanbili.obs.cn-east-3.myhuaweicloud.com "
-    SOURCE2="https://file.uhsea.com "
+    SOURCE1="https://endermanbili.obs.cn-east-3.myhuaweicloud.com"
+    SOURCE2="https://file.uhsea.com"
 
     # 要下载的文件路径
     FILE_PATH1="/TBMB%E4%B8%8B%E8%BD%BD%E6%BA%90/5e5eb8e3e13920438986b1dbbde4812b91.zip"
