@@ -615,7 +615,7 @@ def merge_audio_video():
             input(strings[lang]['press_enter'])
             return
     
-    video_dir = os.path.expanduser("~/TQQS/output_video")
+    video_dir = os.path.expanduser("~/TQQS/bin/output_video")
     audio_dir = os.path.expanduser("~/TQQS/output_audio")
     final_dir = os.path.expanduser("~/TQQS/final_video")
     

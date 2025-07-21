@@ -1,11 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-echo "注意：本脚本是为TERMUX定制的自动化脚本，在其它系统上安装termios库时会出错，故不要使用。"
-sleep 5
+echo "注意：本脚本是为TERMUX定制的自动化脚本，在其它系统上没有termios库的支持，故不要使用。"
+sleep 3
 
 # 检查当前目录下是否有bin目录和QQS程序
 if [ -d "bin" ] && [ -f "bin/QQS" ]; then
-    echo "检测到已存在bin目录和QQS程序，跳过安装过程，直接运行。"
+    echo "检测到已安装，文件检查通过，正在进入工具箱。"
     python toolbox.py
     exit 0
 elif [ -d "bin" ]; then
